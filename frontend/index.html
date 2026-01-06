@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthSure Policy Operations Portal</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <div id="main">
+        <!-- navbar -->
+        <div id="navbar">
+            <div id="info">
+                <div id="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#667EEA;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="crossGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#E3F2FD;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Shield Background -->
+                        <path d="M16 3L6 7v8c0 7.4 5.12 14.32 10.67 16 5.54-1.68 10.67-8.6 10.67-16V7L16 3z"
+                            fill="url(#shieldGradient)" stroke="#357ABD" stroke-width="0.5" />
+
+                        <!-- Medical Cross -->
+                        <path d="M16 10v12M10 16h12" stroke="url(#crossGradient)" stroke-width="2.5"
+                            stroke-linecap="round" />
+
+                        <!-- Accent Dot -->
+                        <circle cx="16" cy="16" r="1.5" fill="white" opacity="0.8" />
+                    </svg>
+                </div>
+
+                <div id="heading">HealthSure Policy Operations Portal</div>
+            </div>
+            <div id="search">
+                <input type="text" id="searchInput" placeholder="Search patients by name / phone / email">
+            </div>
+        </div>
+
+        <!-- main content area -->
+        <div id="content">
+            <!-- left side - patient list -->
+            <div id="leftPanel">
+                <button id="onboardBtn" class="primary-btn">+ Onboard New Patient</button>
+
+                <div id="patientTable">
+                    <div class="table-header">
+                        <div class="col-name">Name</div>
+                        <div class="col-phone">Phone</div>
+                        <div class="col-city">City</div>
+                        <div class="col-policies">Active Policies</div>
+                    </div>
+                    <div id="patientList"></div>
+                </div>
+
+                <!-- stats cards -->
+                <div id="statsCards">
+                    <div class="stat-card">
+                        <div class="stat-label">Active Policies</div>
+                        <div class="stat-value" id="activeCount">0</div>
+                        <div class="stat-trend up">↑</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Cancelled Policies</div>
+                        <div class="stat-value" id="cancelledCount">0</div>
+                        <div class="stat-trend down">↓</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Expired Policies</div>
+                        <div class="stat-value" id="expiredCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Expiring in 30 days</div>
+                        <div class="stat-value" id="expiringCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- right side - patient summary - UPDATED STRUCTURE -->
+            <div id="rightPanel">
+                <div id="patientSummary">
+                    <div class="summary-header">
+                        <h2>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                style="vertical-align: middle; margin-right: 8px;">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                                    fill="currentColor" />
+                            </svg>
+                            Patient Summary
+                        </h2>
+                        <span class="summary-badge">Profile</span>
+                    </div>
+
+                    <div id="summaryContent">
+                        <!-- Patient Info Card -->
+                        <div id="patientInfoCard">
+                            <div id="patientAvatarWrapper">
+                                <div id="patientAvatar">N/A</div>
+                                <div class="status-indicator"></div>
+                            </div>
+
+                            <div id="patientDetailsGrid">
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">Full Name</span>
+                                        <span class="detail-value" id="detailName">----</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">Age</span>
+                                        <span class="detail-value" id="detailAge">----</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">City</span>
+                                        <span class="detail-value" id="detailCity">----</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-item detail-item-wide">
+                                    <div class="detail-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">Phone Number</span>
+                                        <span class="detail-value" id="detailPhone">----</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-item detail-item-wide">
+                                    <div class="detail-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </div>
+                                    <div class="detail-content">
+                                        <span class="detail-label">Email Address</span>
+                                        <span class="detail-value" id="detailEmail">----</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Policies Section -->
+                        <div id="policiesSection">
+                            <div class="section-header">
+                                <h3>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                        style="vertical-align: middle; margin-right: 6px;">
+                                        <path
+                                            d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    Policy Records
+                                </h3>
+                                <span class="policy-count" id="policyCount">0 Policies</span>
+                            </div>
+                            <div id="policiesTable">
+                                <div class="empty-state">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                        style="opacity: 0.3; margin-bottom: 12px;">
+                                        <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+                                            fill="currentColor" />
+                                    </svg>
+                                    <p>No patient selected</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Onboarding Modal -->
+        <div id="onboardModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Onboard New Patient</h2>
+                <div id="stepIndicator">
+                    <div class="step active">1</div>
+                    <div class="step-line"></div>
+                    <div class="step">2</div>
+                    <div class="step-line"></div>
+                    <div class="step">3</div>
+                </div>
+                <p id="stepLabel">Step 1 of 3</p>
+
+                <!-- Step 1 -->
+                <div id="step1" class="step-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" id="firstName" placeholder="First Name">
+                            <span class="error-msg"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" placeholder="Last Name">
+                            <span class="error-msg"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="dob" placeholder="Date of Birth">
+                            <span class="error-msg"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="email" placeholder="Email Address">
+                            <span class="error-msg"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="phone" placeholder="Phone Number">
+                            <span class="error-msg"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" id="address" placeholder="Address">
+                            <span class="error-msg"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div id="step2" class="step-content hidden">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" placeholder="City">
+                        <span class="error-msg"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Medical Conditions (Optional)</label>
+                        <textarea id="medicalConditions" placeholder="Any pre-existing conditions"></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div id="step3" class="step-content hidden">
+                    <div class="confirmation">
+                        <h3>Confirm Patient Details</h3>
+                        <div id="confirmDetails"></div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="cancelBtn" class="secondary-btn">Cancel</button>
+                    <button id="backBtn" class="secondary-btn hidden">Back</button>
+                    <button id="nextBtn" class="primary-btn">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Actions Modal -->
+        <div id="policyModal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="policyModalTitle">Policy Action</h2>
+                <div id="policyModalContent"></div>
+                <div class="modal-actions">
+                    <button id="policyModalCancel" class="secondary-btn">Cancel</button>
+                    <button id="policyModalSubmit" class="primary-btn">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./index.js"></script>
+</body>
+
+</html>
