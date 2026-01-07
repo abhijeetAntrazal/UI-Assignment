@@ -15,6 +15,7 @@ class HealthSureApp {
 
         this.currentStep = 1;
         this.selectedPatient = null;
+        this.selectedImage = null; // NEW: Store selected image file
         this.formData = {};
 
         // Make app globally accessible for onclick handlers
@@ -40,9 +41,71 @@ class HealthSureApp {
         this.dom.on('#nextBtn', 'click', () => this.handleNext());
         this.dom.on('#backBtn', 'click', () => this.handleBack());
 
+        // Image upload listeners - NEW
+        this.dom.on('#imagePreview', 'click', () => {
+            document.getElementById('patientImage').click();
+        });
+
+        this.dom.on('#patientImage', 'change', (e) => this.handleImageSelect(e));
+        this.dom.on('#removeImageBtn', 'click', () => this.removeImage());
+
         // Policy modal
         this.dom.on('#policyModalCancel', 'click', () => this.closePolicyModal());
         this.dom.on('#policyModalSubmit', 'click', () => this.submitPolicyAction());
+    }
+
+    // NEW: Handle image selection and preview
+    handleImageSelect(e) {
+        const file = e.target.files[0];
+        
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Image size must be less than 5MB');
+            return;
+        }
+
+        this.selectedImage = file;
+
+        // Preview image using FileReader
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const preview = this.dom.select('#imagePreview');
+            preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+            this.dom.addClass('#imagePreview', 'has-image');
+            const removeBtn = this.dom.select('#removeImageBtn');
+            if (removeBtn) {
+                removeBtn.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // NEW: Remove selected image
+    removeImage() {
+        this.selectedImage = null;
+        document.getElementById('patientImage').value = '';
+        
+        const preview = this.dom.select('#imagePreview');
+        preview.innerHTML = `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+            </svg>
+            <p>Click to upload photo</p>
+        `;
+        this.dom.removeClass('#imagePreview', 'has-image');
+        
+        const removeBtn = this.dom.select('#removeImageBtn');
+        if (removeBtn) {
+            removeBtn.style.display = 'none';
+        }
     }
 
     async loadInitialData() {
@@ -124,6 +187,7 @@ class HealthSureApp {
     openOnboardModal() {
         this.currentStep = 1;
         this.formData = {};
+        this.selectedImage = null; // NEW: Reset image
         this.dom.removeClass('#onboardModal', 'hidden');
         this.updateStepUI();
     }
@@ -137,6 +201,9 @@ class HealthSureApp {
         ['#firstName', '#lastName', '#dob', '#email', '#phone', '#address', '#city', '#medicalConditions']
             .forEach(selector => this.dom.setValue(selector, ''));
         this.dom.selectAll('.error-msg').forEach(el => el.textContent = '');
+        
+        // NEW: Clear image
+        this.removeImage();
     }
 
     handleNext() {
@@ -298,7 +365,10 @@ class HealthSureApp {
 
     showConfirmation() {
         const age = this.calculateAge(this.formData.dob);
+        const imageText = this.selectedImage ? `<p><strong>Profile Picture:</strong> ${this.selectedImage.name}</p>` : '';
+        
         const html = `
+            ${imageText}
             <p><strong>Name:</strong> ${this.formData.firstName} ${this.formData.lastName}</p>
             <p><strong>Age:</strong> ${age}</p>
             <p><strong>Email:</strong> ${this.formData.email}</p>
@@ -325,16 +395,21 @@ class HealthSureApp {
         try {
             const age = this.calculateAge(this.formData.dob);
 
-            const patientData = {
-                first_name: this.formData.firstName,
-                last_name: this.formData.lastName,
-                age: age,
-                city: this.formData.city,
-                phone: this.formData.phone,
-                email: this.formData.email
-            };
+            // UPDATED: Create FormData for file upload
+            const formData = new FormData();
+            formData.append('first_name', this.formData.firstName);
+            formData.append('last_name', this.formData.lastName);
+            formData.append('age', age);
+            formData.append('city', this.formData.city);
+            formData.append('phone', this.formData.phone);
+            formData.append('email', this.formData.email);
+            
+            // Add image if selected
+            if (this.selectedImage) {
+                formData.append('image', this.selectedImage);
+            }
 
-            const result = await this.patientService.createPatient(patientData);
+            const result = await this.patientService.createPatient(formData);
 
             if (result.success) {
                 alert('Patient onboarded successfully!');

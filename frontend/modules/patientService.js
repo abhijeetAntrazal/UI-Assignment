@@ -26,7 +26,7 @@ class PatientService {
 
     async getPatientByPhone(phone) {
         try {
-            const response = await fetch(`${API_BASE}/patients/${phone}`);
+            const response = await fetch(`${API_BASE}/patients/phone/${phone}`);
             const data = await response.json();
             return data.success ? data.data : null;
         } catch (error) {
@@ -59,13 +59,23 @@ class PatientService {
 
     async createPatient(patientData) {
         try {
-            const response = await fetch(`${API_BASE}/patients`, {
+            // UPDATED: Check if patientData is FormData (for image upload) or object (for JSON)
+            const isFormData = patientData instanceof FormData;
+            
+            const options = {
                 method: 'POST',
-                headers: {
+                body: isFormData ? patientData : JSON.stringify(patientData)
+            };
+
+            // Only set Content-Type for JSON, not for FormData
+            // Browser automatically sets multipart/form-data with boundary for FormData
+            if (!isFormData) {
+                options.headers = {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(patientData)
-            });
+                };
+            }
+
+            const response = await fetch(`${API_BASE}/patients`, options);
             const data = await response.json();
 
             if (!data.success) {
@@ -89,9 +99,39 @@ class PatientService {
                 body: JSON.stringify(patientData)
             });
             const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to update patient');
+            }
+            
             return data;
         } catch (error) {
             console.error('Error updating patient:', error);
+            throw error;
+        }
+    }
+
+    //  Update patient image only
+    async updatePatientImage(patientId, imageFile) {
+        try {
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            const response = await fetch(`${API_BASE}/patients/${patientId}/image`, {
+                method: 'PUT',
+                body: formData
+                // No Content-Type header - browser sets it automatically with boundary
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to update image');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error updating patient image:', error);
             throw error;
         }
     }
@@ -102,6 +142,11 @@ class PatientService {
                 method: 'DELETE'
             });
             const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to delete patient');
+            }
+            
             return data;
         } catch (error) {
             console.error('Error deleting patient:', error);
